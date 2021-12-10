@@ -35,6 +35,40 @@ average image:
 
 ![](results/example_average_face.png)
 
+## 5. example for vggface2 
+
+calculate the average face of dataset vggface2
+
+first, calculate the landmark:
+
+```shell
+python vggface2landmark.py \
+    --image-dir VGGFace2/train/ \
+    --save-dir VGGFace2/
+```
+
+calculate each people average face
+
+```shell
+python vggface2averageface.py \
+    --image-dir VGGFace2/train/ \
+    --landmark-dir VGGFace2/ \
+    --size 224 \ 
+    --save-dir results/VGGFace2/
+```
+
+then, you will get several average face like:
+
+| | | |
+|-------|---------------|-----|
+| ![](results/VGGFace2/n000138.jpg) | ![](results/VGGFace2/n000793.jpg) | ![](results/VGGFace2/n002445.jpg) |
+| ![](results/VGGFace2/n000307.jpg) | ![](results/VGGFace2/n000953.jpg) | ![](results/VGGFace2/n002450.jpg) |
+| ![](results/VGGFace2/n000325.jpg) | ![](results/VGGFace2/n002326.jpg) | ![](results/VGGFace2/n002649.jpg) |
+
+final, calculate the average face from the various people's average faces:
+
+![](results/VGGFace2.png)
+
 ## Acknowledge
 
 This code is build from [Naurislv](https://github.com/Naurislv)'s project: [https://github.com/Naurislv/facial_image_averaging](https://github.com/Naurislv/facial_image_averaging)

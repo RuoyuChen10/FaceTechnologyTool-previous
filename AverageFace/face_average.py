@@ -108,7 +108,7 @@ class AverageFace():
         return delaunayTri
 
     def constrainPoint(self, p, w, h) :
-        p =  ( min( max( p[0], 0 ) , w - 1 ) , min( max( p[1], 0 ) , h - 1 ) )
+        p =  (min(max(p[0], 0), w-1), min(max(p[1], 0), h-1))
         return p
 
     def applyAffineTransform(self, src, srcTri, dstTri, size):
@@ -120,7 +120,7 @@ class AverageFace():
         warpMat = cv2.getAffineTransform( np.float32(srcTri), np.float32(dstTri) )
         # Apply the Affine Transform just found to the src image
         dst = cv2.warpAffine( src, warpMat, (size[0], size[1]), None, flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101 )
-
+        
         return dst
 
     def warpTriangle(self, img1, img2, t1, t2) :
@@ -221,26 +221,30 @@ class AverageFace():
         # Warp input images to average image landmarks
         for i in range(0, len(imagesNorm)) :
             img = np.zeros((self.height, self.weight, 3), np.float32())
-            # Transform triangles one by one
-            for j in range(0, len(dt)) :
-                tin = [] 
-                tout = []
-                
-                for k in range(0, 3) :                
-                    pIn = pointsNorm[i][dt[j][k]]
-                    pIn = self.constrainPoint(pIn, self.weight, self.height)
+            try:
+                # Here may exist bug
+                # Transform triangles one by one
+                for j in range(0, len(dt)) :
+                    tin = [] 
+                    tout = []
                     
-                    pOut = pointsAvg[dt[j][k]]
-                    pOut = self.constrainPoint(pOut, self.weight, self.height)
+                    for k in range(0, 3) :                
+                        pIn = pointsNorm[i][dt[j][k]]
+                        pIn = self.constrainPoint(pIn, self.weight, self.height)
+                        
+                        pOut = pointsAvg[dt[j][k]]
+                        pOut = self.constrainPoint(pOut, self.weight, self.height)
+                        
+                        tin.append(pIn)
+                        tout.append(pOut)
                     
-                    tin.append(pIn)
-                    tout.append(pOut)
-                
-                self.warpTriangle(imagesNorm[i], img, tin, tout)
+                    self.warpTriangle(imagesNorm[i], img, tin, tout)
 
 
-            # Add image intensities for averaging
-            output = output + img
+                # Add image intensities for averaging
+                output = output + img
+            except:
+                numImages -= 1
 
         # Divide by numImages to get average
         output = output / numImages
