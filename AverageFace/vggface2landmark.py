@@ -70,33 +70,38 @@ def detect_landmarks(dir_path, save_dir):
         if (".jpg" in im_name) or (".png" in im_name):
             if not os.path.isfile(os.path.join(save_dir, im_name.replace('.jpg', '.txt'))):
                 im_path = os.path.join(dir_path, im_name)
-                # print("Processing file: {}".format(im_path))
-                img = io.imread(im_path)
+                # Processing image
+                try:
+                    img = io.imread(im_path)
 
-                # Ask the detector to find the bounding boxes of each face. The 1 in the
-                # second argument indicates that we should upsample the image 1 time. This
-                # will make everything bigger and allow us to detect more faces.
-                dets = detector(img, 1)
-                # print("Number of faces detected: {}, choosing biggest".format(len(dets)))
-                if len(dets) !=0:
-                    areas = []
-                    for det in dets:
-                        areas.append(det.area())
+                    # Ask the detector to find the bounding boxes of each face. The 1 in the
+                    # second argument indicates that we should upsample the image 1 time. This
+                    # will make everything bigger and allow us to detect more faces.
+                    dets = detector(img, 1)
+                    # print("Number of faces detected: {}, choosing biggest".format(len(dets)))
+                    if len(dets) !=0:
+                        areas = []
+                        for det in dets:
+                            areas.append(det.area())
 
-                    biggest_area_id = areas.index(max(areas))
+                        biggest_area_id = areas.index(max(areas))
 
-                    # Get the landmarks/parts for the face in box d.
-                    shape = predictor(img, dets[biggest_area_id])
+                        # Get the landmarks/parts for the face in box d.
+                        shape = predictor(img, dets[biggest_area_id])
 
-                    with open(os.path.join(save_dir, im_name.replace('.jpg', '.txt')), "a") as myfile:
-                        for i in range(shape.num_parts):
-                            myfile.write(str(shape.part(i).x) + ' ' + str(shape.part(i).y) + '\n')
+                        with open(os.path.join(save_dir, im_name.replace('.jpg', '.txt')), "a") as myfile:
+                            for i in range(shape.num_parts):
+                                myfile.write(str(shape.part(i).x) + ' ' + str(shape.part(i).y) + '\n')
+                except:
+                    pass
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Semantic Interpretability Test')
     # general
     parser.add_argument('--image-dir', type=str, default="/home/cry/data2/VGGFace2/train/",
                         help='input image path')
+    parser.add_argument('--process', type=int, default=0,
+                        help='the processing')
     parser.add_argument('--save-dir',
                         type=str,
                         default='./VGGFace2',
@@ -109,6 +114,7 @@ def main(args):
     save_dir  = args.save_dir
 
     people_id = os.listdir(root_path)
+    people_id = people_id[args.process:]
 
     for people in tqdm(people_id):
         mkdir(os.path.join(save_dir, people))
