@@ -46,3 +46,68 @@ An example:
 
 ![](./images/jf-alignment.jpg)
 
+## 3. Face Recognition
+
+I recommand two popular method:
+
+CosFace: [Hao Wang, Yitong Wang, Zheng Zhou, Xing Ji, Dihong Gong, Jingchao Zhou, Zhifeng Li, Wei Liu; Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2018, pp. 5265-5274
+](https://openaccess.thecvf.com/content_cvpr_2018/html/Wang_CosFace_Large_Margin_CVPR_2018_paper.html)
+
+ArcFace: [Jiankang Deng, Jia Guo, Niannan Xue, Stefanos Zafeiriou; Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2019, pp. 4690-4699](https://openaccess.thecvf.com/content_CVPR_2019/html/Deng_ArcFace_Additive_Angular_Margin_Loss_for_Deep_Face_Recognition_CVPR_2019_paper.html)
+
+As for ArcFace:
+
+![](./images/ArcFace.jpg)
+
+There is no special, only add loss function on it.
+
+During training:
+
+`ArcFace` = `ResNet-101` + `Additive Angular Margin Penalty` + `Feature Re-scale` + `Softmax`
+
+Inference stage:
+
+`ArcFace` = `ResNet-101` + `Softmax`
+
+the implementation of `ArcFace` and `CosFace` please see [models/metrics.py](models/metrics.py).
+
+## 4. Train the model.
+
+I give a example on VGGFace2 dataset.
+
+First, give a path, which conclude all the images that have been aligned, like this:
+
+![](./images/jf-alignment.jpg)
+
+Then, generate a list, such as:
+
+```shell
+n000002/0327_01.jpg 0
+n000002/0018_03.jpg 0
+n000002/0262_01.jpg 0
+n000002/0185_01.jpg 0
+n000002/0107_01.jpg 0
+n000002/0020_01.jpg 0
+n000002/0144_01.jpg 0
+n000002/0161_01.jpg 0
+n000002/0204_04.jpg 0
+n000002/0223_01.jpg 0
+n000002/0163_01.jpg 0
+n000002/0270_01.jpg 0
+```
+
+as the format: `<image path> <ID>`.
+
+Then, train the network:
+
+```shell
+python train.py \
+    --dataset-root VGGFace2/train_align \
+    --train-list   data/train.txt \
+    --val-list     data/val.txt \
+    --num-classes  8631 \
+    --backbone     resnet50 \
+    --pre-trained  pretrained/ms1mv3_arcface_r50_fp16/backbone.pth \
+    --metric       arcface \
+    --device       cuda
+```
