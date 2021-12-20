@@ -123,6 +123,20 @@ def main(args):
             os.path.join(save_dir, people)
             )
 
+def one_people(args):
+    """
+    only detect one people
+    """
+    root_path = args.image_dir
+    save_dir  = args.save_dir
+
+    people = "n007587"
+    mkdir(os.path.join(save_dir, people))
+    detect_landmarks(
+        os.path.join(root_path, people), 
+        os.path.join(save_dir, people)
+        )
+
 if __name__ == "__main__":
     args = parse_args()
     main(args)

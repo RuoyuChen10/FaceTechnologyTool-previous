@@ -26,6 +26,8 @@ def parse_args():
                         type=str,
                         default='./VGGFace2',
                         help='landmark_dir.')
+    parser.add_argument('--process', type=int, default=0,
+                        help='the processing')
     parser.add_argument('--size',
                         type=int,
                         default=224,
@@ -50,30 +52,34 @@ def single_person(image_dir, landmark_dir):
     pointsArray = []
     
     people_lds = os.listdir(landmark_dir)
+
     for people_ld in people_lds:
-        # landmark txt path
-        people_ld_path = os.path.join(landmark_dir, people_ld)
-        # correspond img path
-        people_img_path = os.path.join(image_dir, people_ld.replace(".txt", ".jpg"))
+        try:
+            # landmark txt path
+            people_ld_path = os.path.join(landmark_dir, people_ld)
+            # correspond img path
+            people_img_path = os.path.join(image_dir, people_ld.replace(".txt", ".jpg"))
 
-        #Create an array of points.
-        points = []            
-        
-        # Read points from filePath
-        with open(people_ld_path) as file :
-            for line in file :
-                x, y = line.split()
-                points.append((int(x), int(y)))
-        
-        # Store array of points
-        pointsArray.append(points)
+            #Create an array of points.
+            points = []            
+            
+            # Read points from filePath
+            with open(people_ld_path) as file :
+                for line in file :
+                    x, y = line.split()
+                    points.append((int(x), int(y)))
 
-        # read image
-        img = cv2.imread(people_img_path)
-        # Convert to floating point
-        img = np.float32(img)/255.0
-        # Add to array of images
-        imagesArray.append(img)
+            # read image
+            img = cv2.imread(people_img_path)
+            # Convert to floating point
+            img = np.float32(img)/255.0
+
+            # Store array of points
+            pointsArray.append(points)
+            # Add to array of images
+            imagesArray.append(img)
+        except:
+            pass
 
     return imagesArray, pointsArray
 
@@ -98,8 +104,9 @@ def main(args):
     face_aver = AverageFace(args.size, args.size)
 
     people_id = os.listdir(ldmk_dir)
+    people_id = people_id[args.process:]
     
-    for people in tqdm(people_id):       
+    for people in tqdm(people_id):  
         # path of the file
         people_ld_path = os.path.join(ldmk_dir, people)
         people_image_path = os.path.join(img_path, people)
@@ -109,8 +116,10 @@ def main(args):
 
         # save
         save_path = os.path.join(args.save_dir, people + ".jpg")
-
-        cv2.imwrite(save_path, face_aver.face_average(imagesArray, pointsArray) * 255)
+        try:
+            cv2.imwrite(save_path, face_aver.face_average(imagesArray, pointsArray) * 255)
+        except:
+            print(people)
 
 if __name__ == "__main__":
     args = parse_args()
