@@ -1,4 +1,4 @@
-# face-tool
+# Face Technology Tool
 
 A collection of code commonly used to process face technology.
 
